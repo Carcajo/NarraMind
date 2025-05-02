@@ -1,0 +1,24 @@
+@import "tailwindcss";
+
+
+body {
+  @apply bg-gray-900 text-gray-100 antialiased;
+}
+
+
+@layer base {
+  h1, h2, h3, h4, h5, h6 {
+    @apply text-white mb-4 font-semibold;
+  }
+  h1 { @apply text-3xl; }
+  h2 { @apply text-2xl; }
+}
+
+@layer components {
+}
+
+@layer components {
+  .admin-btn {
+    @apply w-full bg-blue-600 text-black py-2 px-4 rounded hover:bg-blue-700 transition;
+  }
+}
