@@ -1,29 +1,42 @@
 import logging
+import os
 from starlette.concurrency import run_in_threadpool
-from backend.app.llm.rag import get_answer
+from backend.app.llm.rag import RAGPipeline
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
+JSON_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), "base.json")
+
 
 class ChatService:
     def __init__(self):
-        self.system_prompt = """
-        Ты эксперт в написании вирусных сценариев для Reels и TikTok.
-        Придумай цепляющие и привлекающие внимание заголовки, которые мотивируют посмотреть видео.
-        Заголовки должны быть короткими, лаконичными и личными. Избегай заезженных формулировок.
-        Ты получишь описание компании/товара и жанр видео. Ответь сценарием на 15 секунд (для TikTok) или 15–60 секунд (для Reels).
-        Если вопрос не про видео, рекламу или SMM — скажи "Я предназначен только для рекламы. Пожалуйста, задавайте вопросы по теме."
-        """
+        try:
+            self.rag_pipeline = RAGPipeline(JSON_PATH)
+            logger.info(f"RAG pipeline initialized with JSON file: {JSON_PATH}")
+        except Exception as e:
+            logger.error(f"Failed to initialize RAG pipeline: {e}", exc_info=True)
+            self.rag_pipeline = None
 
     async def generate_response(self, user_message: str) -> str:
-        full_prompt = f"{self.system_prompt}\n\nПользователь: {user_message}"
         logger.info(f"Received user message: {user_message}")
-        logger.debug(f"Full prompt: {full_prompt}")
+
+        if not self.rag_pipeline:
+            logger.error("RAG pipeline not initialized, reinitializing...")
+            try:
+                self.rag_pipeline = RAGPipeline(JSON_PATH)
+            except Exception as e:
+                logger.error(f"Failed to reinitialize RAG pipeline: {e}", exc_info=True)
+                return "Извините, произошла ошибка при генерации ответа. Система обработки не инициализирована."
 
         try:
-            answer = await run_in_threadpool(get_answer, full_prompt)
-            logger.info(f"Generated answer: {answer}")
+            answer = await run_in_threadpool(self.rag_pipeline.run, user_message)
+
+            if not answer or answer.strip() == "":
+                logger.warning("Empty response generated, using fallback")
+                return "Извините, не удалось сгенерировать сценарий. Пожалуйста, уточните ваш запрос."
+
+            logger.info(f"Generated answer using RAG")
             return answer
         except Exception as e:
             logger.error(f"Error generating response: {e}", exc_info=True)

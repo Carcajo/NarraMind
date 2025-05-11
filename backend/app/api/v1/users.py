@@ -1,9 +1,10 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
 from sqlalchemy.orm import Session
 from backend.app.schemas import user as schemas
 from backend.app.crud import user as crud
 from backend.app.db.session import get_db
 from backend.app.core.security import get_password_hash
+
 
 router = APIRouter()
 
@@ -23,3 +24,4 @@ def read_user(user_id: int, db: Session = Depends(get_db)):
     if not db_user:
         raise HTTPException(status_code=404, detail="User not found")
     return db_user
+

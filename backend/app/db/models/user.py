@@ -17,3 +17,4 @@ class User(Base):
 
     scenarios = relationship("Scenario", back_populates="creator", cascade="all, delete-orphan")
     chats = relationship("Chat", back_populates="user", cascade="all, delete-orphan")
+

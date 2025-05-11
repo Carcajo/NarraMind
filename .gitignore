@@ -43,7 +43,7 @@ logs/
 *.log
 
 backend/app.db
-
+backend/app/base.json
 backend/app/db/migrations/versions/
 
 backend/app/llm/vectorstore.py

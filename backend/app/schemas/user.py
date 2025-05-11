@@ -1,6 +1,6 @@
 from pydantic import BaseModel, EmailStr
 from datetime import datetime
-from typing import Optional,Literal, List
+from typing import Optional, Literal
 from enum import Enum
 
 
@@ -28,9 +28,7 @@ class User(UserBase):
     last_login: Optional[datetime] = None
 
     class Config:
-        orm_mode = True  # или from pydantic import ConfigDict (для V2)
-        # если используешь Pydantic v2, замени на:
-        # model_config = ConfigDict(from_attributes=True)
+        from_attributes = True
 
 
 class UserLogin(BaseModel):

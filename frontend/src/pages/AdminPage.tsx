@@ -3,10 +3,6 @@ import React from "react";
 const AdminPage = () => {
   const handleButtonClick = async (action: string) => {
     try {
-      // Здесь будет вызов API, например:
-      // const response = await fetch(`/api/admin/${action}`);
-      // const data = await response.json();
-      // alert(JSON.stringify(data, null, 2));
       alert(`Выполнено действие: ${action}`);
     } catch (err) {
       alert(`Ошибка при выполнении: ${action}`);
