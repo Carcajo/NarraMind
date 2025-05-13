@@ -20,6 +20,11 @@ const Chat = () => {
     }
   ]);
 
+  // Новое состояние для обратной связи
+  const [feedbackOpen, setFeedbackOpen] = useState(false);
+  const [feedbackText, setFeedbackText] = useState("");
+  const [feedbackSending, setFeedbackSending] = useState(false);
+
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [chats]);
@@ -133,8 +138,34 @@ const Chat = () => {
     });
   };
 
+  // Обработчик отправки обратной связи
+  const handleFeedbackSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!feedbackText.trim()) return;
+
+    setFeedbackSending(true);
+
+    try {
+      // Здесь можно добавить реальный запрос на сервер для отправки обратной связи
+      // Пример:
+      // await fetch("/api/feedback", { method: "POST", body: JSON.stringify({ feedback: feedbackText }) });
+
+      console.log("Отправлена обратная связь:", feedbackText);
+      alert("Спасибо за ваш отзыв!");
+
+      setFeedbackText("");
+      setFeedbackOpen(false);
+    } catch (error) {
+      console.error("Ошибка при отправке обратной связи:", error);
+      alert("Не удалось отправить отзыв. Попробуйте позже.");
+    } finally {
+      setFeedbackSending(false);
+    }
+  };
+
   return (
-    <div className="h-screen flex text-white bg-gray-900 font-sans">
+    <div className="h-screen flex text-white bg-gray-900 font-sans relative">
+      {/* Левая панель чатов */}
       <aside className="w-64 border-r border-gray-700 p-4 flex flex-col">
         <button
           className="mb-4 bg-indigo-600 hover:bg-indigo-500 text-white py-2 px-4 rounded-lg"
@@ -159,6 +190,7 @@ const Chat = () => {
         </ul>
       </aside>
 
+      {/* Основной контент */}
       <main className="flex-1 flex flex-col justify-between">
         <div className="p-6 space-y-4 overflow-auto">
           {currentChat.messages.length === 0 ? (
@@ -216,6 +248,7 @@ const Chat = () => {
         </form>
       </main>
 
+      {/* Правая панель */}
       <aside className="w-40 border-l border-gray-700 p-4 flex flex-col items-end gap-4">
         <button
           onClick={() => navigate("/favorites")}
@@ -230,6 +263,53 @@ const Chat = () => {
           <span className="text-sm">👤</span>
         </button>
       </aside>
+
+      {/* Кнопка обратной связи в левом нижнем углу */}
+      <div className="fixed bottom-4 left-4 z-50">
+        {!feedbackOpen && (
+          <button
+            onClick={() => setFeedbackOpen(true)}
+            className="bg-indigo-600 hover:bg-indigo-500 text-white py-2 px-4 rounded-lg shadow-lg"
+          >
+            Обратная связь
+          </button>
+        )}
+
+        {feedbackOpen && (
+          <form
+            onSubmit={handleFeedbackSubmit}
+            className="bg-gray-800 p-4 rounded-lg shadow-lg w-80 flex flex-col gap-3"
+          >
+            <textarea
+              value={feedbackText}
+              onChange={(e) => setFeedbackText(e.target.value)}
+              placeholder="Напишите ваш отзыв..."
+              className="w-full h-24 p-2 rounded-md bg-gray-700 text-white resize-none focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              disabled={feedbackSending}
+              required
+            />
+            <div className="flex justify-between items-center">
+              <button
+                type="submit"
+                className={`bg-indigo-600 hover:bg-indigo-500 text-white py-2 px-4 rounded-lg ${
+                  feedbackSending ? "opacity-50 cursor-not-allowed" : ""
+                }`}
+                disabled={feedbackSending}
+              >
+                {feedbackSending ? "Отправка..." : "Отправить"}
+              </button>
+              <button
+                type="button"
+                onClick={() => setFeedbackOpen(false)}
+                className="text-gray-400 hover:text-gray-200"
+                disabled={feedbackSending}
+              >
+                Отмена
+              </button>
+            </div>
+          </form>
+        )}
+      </div>
     </div>
   );
 };
